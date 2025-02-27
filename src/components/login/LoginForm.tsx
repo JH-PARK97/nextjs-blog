@@ -36,7 +36,6 @@ export default function LoginForm() {
     setError('');
 
     const res = await login(email, password);
-    console.log('res : ', res);
 
     try {
       if ('error_code' in res.data) {
