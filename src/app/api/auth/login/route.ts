@@ -22,26 +22,24 @@ export async function POST(req: NextRequest) {
         password,
       }
     );
-
-    if ('error' in response) {
-      return NextResponse.json({ response });
-    }
-
     const data = NextResponse.json({ data: response, result_code: 0 });
 
-    data.cookies.set('access_token', response.access_token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      maxAge: 60 * 60 * 24 * 1,
-      path: '/',
-    });
+    // 올바른 계정을 입력하면 cookie에 access_token을 저장
+    if ('access_token' in response) {
+      data.cookies.set('access_token', response.access_token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        maxAge: 60 * 60 * 24 * 1,
+        path: '/',
+      });
 
-    return data;
+      return data;
+    } else {
+      // 존재하지 않는 계정일 경우 data값만 return
+      return data;
+    }
   } catch (error) {
     if (error instanceof Error)
-      return NextResponse.json(
-        { message: error.message, result_code: 1 },
-        { status: 400 }
-      );
+      return NextResponse.json({ message: error.message, result_code: 1 });
   }
 }
